@@ -56,8 +56,8 @@ class CollapseDuplicateTransformer(Transformer):
     '''
     Transformer that collapses consecutive duplicate characters into a single character.
     '''
-    def __init__(self, default_threshold: int = 1, custom_thresholds: dict[str, int] = None):
-        if default_threshold < 0:
+    def __init__(self, default_threshold: int | None = 1, custom_thresholds: dict[str, int] = None):
+        if default_threshold is not None and default_threshold < 0:
             raise ValueError("default_threshold must be non-negative")
         
         self.default_threshold = default_threshold
@@ -70,6 +70,11 @@ class CollapseDuplicateTransformer(Transformer):
 
     def _should_keep(self, char: str) -> bool:
         threshold = self._get_threshold(char)
+        
+        if threshold is None:
+            self.last_char = char
+            return True
+        
         if self.last_char == char:
             if self.remaining > 0:
                 self.remaining -= 1

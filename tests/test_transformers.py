@@ -59,6 +59,14 @@ def test_collapse_duplicate_transformer():
     output_text4 = custom_char_transformer.transform_text(input_text4)
     assert output_text4 == "heloo!!!", "CollapseDuplicate transformer with custom char thresholds failed."
 
+    # Test with None threshold
+    none_threshold_transformer = CollapseDuplicateTransformer(None, {
+        ' ': 1,
+    })
+    input_text5 = "This    is  a    test."
+    output_text5 = none_threshold_transformer.transform_text(input_text5)
+    assert output_text5 == "This is a test.", "CollapseDuplicate transformer with None threshold failed."
+
 def test_remap_character_transformer():
     '''
     Test the RemapCharacterTransformer.

@@ -56,8 +56,33 @@ class CollapseDuplicateTransformer(Transformer):
     '''
     Transformer that collapses consecutive duplicate characters into a single character.
     '''
-    def __init__(self):
-        super().__init__(lambda char: char if not hasattr(self, 'last_char') or self.last_char != char else '')
+    def __init__(self, default_threshold: int = 1, custom_thresholds: dict[str, int] = None):
+        if default_threshold < 0:
+            raise ValueError("default_threshold must be non-negative")
+        
+        self.default_threshold = default_threshold
+        self.custom_thresholds = custom_thresholds or {}
+
+        self.remaining = -1
+        self.last_char = None
+
+        super().__init__(lambda char: char if self._should_keep(char) else '')
+
+    def _should_keep(self, char: str) -> bool:
+        threshold = self._get_threshold(char)
+        if self.last_char == char:
+            if self.remaining > 0:
+                self.remaining -= 1
+                return True
+            else:
+                return False
+        else:
+            self.last_char = char
+            self.remaining = threshold - 1
+            return threshold > 0
+
+    def _get_threshold(self, char: str) -> int:
+        return self.custom_thresholds.get(char, self.default_threshold)
 
     def transform_text(self, text: str) -> str:
         '''
@@ -65,13 +90,8 @@ class CollapseDuplicateTransformer(Transformer):
         :param text: The input text to be transformed.
         :return: The transformed text with duplicates collapsed.
         '''
-        self.last_char = None
-        result = []
-        for char in text:
-            if char != self.last_char:
-                result.append(char)
-                self.last_char = char
-        return ''.join(result)
+        self.reset()
+        return super().transform_text(text)
 
     def reset(self):
         '''

@@ -44,6 +44,21 @@ def test_collapse_duplicate_transformer():
     output_text2 = collapse_duplicate_transformer.transform_text(input_text2)
     assert output_text2 == "Hhi", "CollapseDuplicate transformer failed."
 
+    # Test thresholds
+    custom_collapse_transformer = CollapseDuplicateTransformer(2)
+    input_text3 = "hello"
+    output_text3 = custom_collapse_transformer.transform_text(input_text3)
+    assert output_text3 == "hello", "CollapseDuplicate transformer with threshold failed."
+
+    # Test custom character thresholds
+    custom_char_transformer = CollapseDuplicateTransformer(3, {
+        'o': 2,
+        'l': 1,
+    })
+    input_text4 = "hellooo!!!!!"
+    output_text4 = custom_char_transformer.transform_text(input_text4)
+    assert output_text4 == "heloo!!!", "CollapseDuplicate transformer with custom char thresholds failed."
+
 def test_remap_character_transformer():
     '''
     Test the RemapCharacterTransformer.

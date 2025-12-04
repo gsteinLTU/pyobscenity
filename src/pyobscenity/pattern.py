@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pyobscenity.util import is_high_surrogate, is_low_surrogate_codepoint
+
 @dataclass
 class LiteralNode:
     chars: list[int]
@@ -257,26 +259,12 @@ class PatternParser:
         self.lastColumn = self.column
         self.column += 1
 
-        # In Python 3, strings are sequences of Unicode code points, so most characters
-        # are already full code points and surrogate pairs shouldn't normally appear.
-        # However, if this string contains UTF-16 surrogate code units (e.g. due to
-        # decoding with 'surrogatepass'), handle combining them so the parser behaves
-        # similarly to the original JS implementation.
-
-        # Helper lambdas for checking surrogate ranges (0xD800-0xDBFF for high,
-        # 0xDC00-0xDFFF for low).
-        def _is_high_surrogate(ch: str) -> bool:
-            return 0xD800 <= ord(ch) <= 0xDBFF
-
-        def _is_low_surrogate_codepoint(cp: int) -> bool:
-            return 0xDC00 <= cp <= 0xDFFF
-
         # If current char is a high surrogate and there's another code unit available,
         # see if it's a low surrogate and combine them.
-        if _is_high_surrogate(char) and not self.done and self.position < len(self.input):
+        if is_high_surrogate(char) and not self.done and self.position < len(self.input):
             next_ch = self.input[self.position]
             next_cp = ord(next_ch)
-            if _is_low_surrogate_codepoint(next_cp):
+            if is_low_surrogate_codepoint(next_cp):
                 # consume the low surrogate
                 self.position += 1
                 # record extra width consumed by the surrogate pair (beyond the 1 we

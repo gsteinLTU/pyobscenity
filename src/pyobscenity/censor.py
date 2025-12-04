@@ -72,7 +72,7 @@ class TextCensor:
                 overlapsAtStart=overlaps_at_start
             ))
 
-            last_index = max(last_index, match.endIndex + 1)
+            last_index = max(last_index, match.endIndex)
 
         censored += input[last_index:]
         return censored

@@ -2,8 +2,15 @@ from dataclasses import dataclass
 from typing import Callable
 
 from pyobscenity.matcher import MatchPayload
-from pyobscenity.pattern import ParsedPattern
-from pyobscenity.util import assign_incrementing_ids
+from pyobscenity.pattern import ParsedPattern, PatternParser
+
+def assign_incrementing_ids(terms: list[ParsedPattern]) -> list[dict]:
+	'''
+	Assigns incrementing IDs to a list of terms.
+	:param terms: List of terms to assign IDs to.
+	:return: List of dictionaries with 'id' and 'pattern' keys.
+	'''
+	return [{'id': i, 'pattern': term} for i, term in enumerate(terms)]
 
 @dataclass
 class PhraseContainer:
@@ -19,8 +26,11 @@ class PhraseBuilder:
         self.metadata = None
         self.patterns = []
         self.whitelistedTerms = []
+        self._parser = PatternParser()
 
-    def add_pattern(self, pattern: ParsedPattern) -> 'PhraseBuilder':
+    def add_pattern(self, pattern: str | ParsedPattern) -> 'PhraseBuilder':
+        if isinstance(pattern, str):
+            pattern = self._parser.parse_pattern(pattern)
         self.patterns.append(pattern)
         return self
     
@@ -78,14 +88,10 @@ class Dataset:
     
     def build(self) -> dict:
         return {
-            "blacklistedTerms": assign_incrementing_ids(
-                term for container in self.containers for pattern in container.patterns for term in pattern.originalTerms
-            ),
-            "whitelistedTerms": [
-                term for container in self.containers for term in container.whitelistedTerms
-            ]
-        }
-    
+			"blacklisted_terms": assign_incrementing_ids([pattern for container in self.containers for pattern in container.patterns]),
+			"whitelisted_terms": assign_incrementing_ids([term for container in self.containers for term in container.whitelistedTerms]),
+		}
+
     def register_container(self, container: PhraseContainer):
         offset = len(self.containers)
         self.containers.append(container)

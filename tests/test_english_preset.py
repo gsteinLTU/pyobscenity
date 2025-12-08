@@ -1,6 +1,6 @@
 from pyobscenity.english_preset import english_dataset, english_recommended_blacklist_transformers, english_recommended_whitelist_transformers
-from pyobscenity.matcher import Matcher, MatchPayload, RegexMatcher
-from pyobscenity.censor import TextCensor, CensorContext, FullCensor
+from pyobscenity.matcher import RegexMatcher
+from pyobscenity.censor import FullCensor
 
 def test_english_dataset():
     dataset = english_dataset.build()

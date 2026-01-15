@@ -1,6 +1,7 @@
 # pyobscenity
 
-![PyPI - Version](https://img.shields.io/pypi/v/pyobscenity)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyobscenity)](https://pypi.org/project/pyobscenity/)
+[![License](https://img.shields.io/pypi/l/pyobscenity)](https://github.com/gsteinLTU/pyobscenity/blob/master/LICENSE)
 
 A Python port of the JavaScript library [obscenity](https://github.com/jo3-l/obscenity) for detecting and censoring obscene words in text.
 

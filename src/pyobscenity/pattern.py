@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from typing import Tuple
 
-from pyobscenity.util import is_high_surrogate, is_low_surrogate_codepoint
+from pyobscenity.util import is_high_surrogate, is_low_surrogate
 
 @dataclass
 class LiteralNode:
@@ -203,7 +204,7 @@ class PatternParser:
                     self._backup()
                     raise ValueError(f"Trailing backslash at line {self.line}, column {self.column}")
                 escaped_char = self._next()
-                if escaped_char not in supports_escaping:
+                if escaped_char and escaped_char not in supports_escaping:
                     self._backup()
                     raise ValueError(f"Invalid escape sequence '\\{escaped_char}' at line {self.line}, column {self.column}")
                 
@@ -221,7 +222,7 @@ class PatternParser:
             return None
         return self.input[self.position]
     
-    def _mark(self) -> int:
+    def _mark(self) -> Tuple[int, int]:
         '''
         Marks the current position in the input.
         :return: The current position index.
@@ -264,7 +265,7 @@ class PatternParser:
         if is_high_surrogate(char) and not self.done and self.position < len(self.input):
             next_ch = self.input[self.position]
             next_cp = ord(next_ch)
-            if is_low_surrogate_codepoint(next_cp):
+            if is_low_surrogate(next_ch):
                 # consume the low surrogate
                 self.position += 1
                 # record extra width consumed by the surrogate pair (beyond the 1 we

@@ -23,5 +23,5 @@ reg_exp_special_chars = list(map(lambda c: c.encode('utf-8'), ['[', '.', '*', '+
 def is_high_surrogate(ch: str) -> bool:
 	return 0xD800 <= ord(ch) <= 0xDBFF
 
-def is_low_surrogate_codepoint(cp: int) -> bool:
-	return 0xDC00 <= cp <= 0xDFFF
+def is_low_surrogate(ch: str) -> bool:
+	return 0xDC00 <= ord(ch) <= 0xDFFF

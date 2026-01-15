@@ -1,9 +1,10 @@
+import abc
 from dataclasses import dataclass
 from typing import Optional
 import regex
 
 from pyobscenity.transformers import Transformer
-from pyobscenity.util import compare_intervals, is_high_surrogate, is_low_surrogate_codepoint
+from pyobscenity.util import compare_intervals, is_high_surrogate, is_low_surrogate
 
 @dataclass
 class MatchPayload:
@@ -29,10 +30,11 @@ def compare_matches(a: MatchPayload, b: MatchPayload) -> int:
         return result
     return 0 if a.termId == b.termId else -1 if a.termId < b.termId else 1
 
-class Matcher:
+class Matcher(abc.ABC):
     '''
     Base class for matchers.
     '''
+    @abc.abstractmethod
     def get_all_matches(self, input: str, sorted: Optional[bool] = False) -> list[MatchPayload]:
         '''
         Gets all matches in the input text.
@@ -41,6 +43,7 @@ class Matcher:
         '''
         pass
 
+    @abc.abstractmethod
     def has_match(self, input: str) -> bool:
         '''
         Checks if there is at least one match in the input text.
@@ -55,9 +58,9 @@ class RegexMatcher(Matcher):
     '''
     def __init__(self, 
                  blacklisted_terms: list, 
-                 whitelisted_terms: list = None,
-                 blacklist_transformers: list = None,
-                 whitelist_transformers: list = None):
+                 whitelisted_terms: list | None = None,
+                 blacklist_transformers: list | None = None,
+                 whitelist_transformers: list | None = None):
         '''
         Initializes the RegexMatcher with blacklisted and whitelisted terms.
         :param blacklisted_terms: A list representing blacklisted terms.
@@ -80,7 +83,7 @@ class RegexMatcher(Matcher):
                 orig_start = transformedToOrigIndex[start]
                 orig_end = transformedToOrigIndex[end - 1] + 1
 
-                if orig_end < len(input) and is_high_surrogate(input[orig_end - 1]) and is_low_surrogate_codepoint(input[orig_end]):
+                if orig_end < len(input) and is_high_surrogate(input[orig_end - 1]) and is_low_surrogate(input[orig_end]):
                     orig_end += 1
 
                 if not self.is_interval_whitelisted(orig_start, orig_end, whitelisted_intervals):
@@ -106,7 +109,7 @@ class RegexMatcher(Matcher):
                 orig_start = transformedToOrigIndex[start]
                 orig_end = transformedToOrigIndex[end - 1] + 1
 
-                if orig_end < len(input) and is_high_surrogate(ord(input[orig_end - 1])) and is_low_surrogate_codepoint(ord(input[orig_end])):
+                if orig_end < len(input) and is_high_surrogate(input[orig_end - 1]) and is_low_surrogate(input[orig_end]):
                     orig_end += 1
 
                 if not self.is_interval_whitelisted(orig_start, orig_end, whitelisted_intervals):
@@ -124,7 +127,7 @@ class RegexMatcher(Matcher):
                 orig_start = transformedToOrigIndex[start]
                 orig_end = transformedToOrigIndex[end - 1] + 1
 
-                if orig_end < len(input) and is_high_surrogate(input[orig_end - 1]) and is_low_surrogate_codepoint(input[orig_end]):
+                if orig_end < len(input) and is_high_surrogate(input[orig_end - 1]) and is_low_surrogate(input[orig_end]):
                     orig_end += 1
 
                 intervals.append((orig_start, orig_end))

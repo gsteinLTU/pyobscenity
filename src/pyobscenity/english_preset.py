@@ -1,5 +1,4 @@
-from pyobscenity.dataset import Dataset, PhraseBuilder, PhraseContainer
-from pyobscenity.pattern import PatternParser, ParsedPattern
+from pyobscenity.dataset import Dataset
 from pyobscenity.transformers import LowercaseTransformer, ResolveLeetTransformer, ResolveConfusablesTransformer, CollapseDuplicateTransformer
 
 english_recommended_blacklist_transformers = [
@@ -144,6 +143,16 @@ english_dataset = Dataset().add_phrase(lambda phrase: phrase.set_metadata({ 'ori
 	) \
 	.add_phrase(lambda phrase: \
 		phrase \
+			.set_metadata({ 'originalWord': 'damn'})
+			.add_pattern('|damn|')
+			.add_pattern('|damned|')
+            .add_pattern('|damnit|')
+			.add_pattern('|goddamn|')
+            .add_pattern('|damnable|')
+            .add_pattern('|damning|')
+	) \
+	.add_phrase(lambda phrase: \
+		phrase \
 			.set_metadata({ 'originalWord': 'dick' }) \
 			.add_pattern('|dck|') \
 			.add_pattern('dick') \
@@ -271,6 +280,7 @@ english_dataset = Dataset().add_phrase(lambda phrase: phrase.set_metadata({ 'ori
 			.add_pattern('|tiddies') \
 			.add_pattern('|tities'), \
 	) \
+	.add_phrase(lambda phrase: phrase.set_metadata({ 'originalWord': 'spic' }).add_pattern('|spic|').add_pattern('|spics|')) \
 	.add_phrase(lambda phrase: phrase.set_metadata({ 'originalWord': 'tranny' }).add_pattern('|trany')) \
 	.add_phrase(lambda phrase: \
 		phrase.set_metadata({ 'originalWord': 'turd' }).add_pattern('|turd').add_whitelisted_term('turducken'), \

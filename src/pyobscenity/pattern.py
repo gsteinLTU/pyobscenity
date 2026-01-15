@@ -208,7 +208,8 @@ class PatternParser:
                     self._backup()
                     raise ValueError(f"Invalid escape sequence '\\{escaped_char}' at line {self.line}, column {self.column}")
                 
-                chars.append(ord(escaped_char))
+                if escaped_char is not None:
+                    chars.append(ord(escaped_char))
             else:
                 chars.append(ord(next_char))
         return LiteralNode(chars=chars)

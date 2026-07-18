@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Union
 
 from pyobscenity.util import is_high_surrogate, is_low_surrogate
 
@@ -22,7 +22,7 @@ class BoundaryAssertionNode:
     """A node that asserts a word boundary."""
     pass
 
-type Node = LiteralNode | OptionalNode | WildcardNode | BoundaryAssertionNode
+Node = Union[LiteralNode, OptionalNode, WildcardNode, BoundaryAssertionNode]
 
 @dataclass
 class ParsedPattern:

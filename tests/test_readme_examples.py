@@ -5,17 +5,18 @@ This ensures the documentation is accurate and examples don't become stale.
 """
 
 import pytest
+
 from pyobscenity import (
-    censor,
-    check,
-    find_matches,
-    ProfanityFilter,
     Dataset,
-    RegexMatcher,
     FullCensor,
     LowercaseTransformer,
+    ProfanityFilter,
+    RegexMatcher,
+    censor,
+    check,
     english_dataset,
     english_recommended_blacklist_transformers,
+    find_matches,
 )
 
 
@@ -138,10 +139,7 @@ class TestReadmeReusableFilters:
 
     def test_filter_customize_with_chaining(self):
         """Test: Customize with method chaining"""
-        filter = (
-            ProfanityFilter.english()
-            .with_censor("grawlix")
-        )
+        filter = ProfanityFilter.english().with_censor("grawlix")
         result = filter.censor("shit")
         # Should contain grawlix characters
         assert any(c in result for c in "@#$%&*")
@@ -171,38 +169,35 @@ class TestReadmeCustomDatasets:
         """Test: Build custom dataset with your own profanity list"""
         dataset = (
             Dataset()
-            .add_phrase(lambda p: p
-                .set_metadata({"originalWord": "badword"})
-                .add_pattern("|badword|")
-                .add_whitelisted_term("badwords")  # Don't censor "badwords"
+            .add_phrase(
+                lambda p: (
+                    p.set_metadata({"originalWord": "badword"})
+                    .add_pattern("|badword|")
+                    .add_whitelisted_term("badwords")
+                )  # Don't censor "badwords"
             )
-            .add_phrase(lambda p: p
-                .set_metadata({"originalWord": "naughty"})
-                .add_pattern("|naughty|")
+            .add_phrase(
+                lambda p: p.set_metadata({"originalWord": "naughty"}).add_pattern("|naughty|")
             )
         )
 
         filter = ProfanityFilter.custom(dataset)
-        
+
         # Test censoring badword
         result1 = filter.censor("This is a badword")
         assert "*" in result1  # badword should be censored
         assert "badword" not in result1
-        
+
         # Test that badwords (plural) is not censored due to whitelist
         result2 = filter.censor("These are badwords")
         assert result2 == "These are badwords"
 
     def test_custom_dataset_structure(self):
         """Test: Custom dataset can be built and used"""
-        dataset = (
-            Dataset()
-            .add_phrase(lambda p: p
-                .set_metadata({"originalWord": "test"})
-                .add_pattern("|test|")
-            )
+        dataset = Dataset().add_phrase(
+            lambda p: p.set_metadata({"originalWord": "test"}).add_pattern("|test|")
         )
-        
+
         filter = ProfanityFilter.custom(dataset)
         assert filter.has_match("test")
         assert not filter.has_match("clean")
@@ -312,25 +307,25 @@ class TestReadmeIntegration:
         text = "fuck this shit"
         matches = find_matches(text)
         assert len(matches) >= 2
-        
+
         # Verify each match can be analyzed
         for match in matches:
             assert match.matched_text in text
-            assert text[match.start_index:match.end_index] == match.matched_text
+            assert text[match.start_index : match.end_index] == match.matched_text
 
     def test_workflow_filter_batch_processing(self):
         """Test: Using filter for batch processing"""
         filter = ProfanityFilter.english().with_censor("fixed", replacement="***")
-        
+
         texts = [
             "hello shit",
             "fucking great",
             "clean text",
             "damn it",
         ]
-        
+
         results = [filter.censor(text) for text in texts]
-        
+
         # Verify batch processing works
         assert len(results) == len(texts)
         # All texts should be processed without error
@@ -341,20 +336,24 @@ class TestReadmeIntegration:
         """Test: Using custom dataset for batch processing"""
         dataset = (
             Dataset()
-            .add_phrase(lambda p: p.set_metadata({"originalWord": "badword"}).add_pattern("|badword|"))
-            .add_phrase(lambda p: p.set_metadata({"originalWord": "naughty"}).add_pattern("|naughty|"))
+            .add_phrase(
+                lambda p: p.set_metadata({"originalWord": "badword"}).add_pattern("|badword|")
+            )
+            .add_phrase(
+                lambda p: p.set_metadata({"originalWord": "naughty"}).add_pattern("|naughty|")
+            )
         )
-        
+
         filter = ProfanityFilter.custom(dataset)
-        
+
         texts = [
             "This is badword",
             "That is naughty",
             "This is clean",
         ]
-        
+
         results = [filter.censor(text) for text in texts]
-        
+
         # Verify results
         assert "*" in results[0]  # badword censored
         assert "*" in results[1]  # naughty censored

@@ -1,12 +1,13 @@
 """Tests for the high-level convenience API."""
 
 import pytest
+
 from pyobscenity import (
+    Match,
+    ProfanityFilter,
     censor,
     check,
     find_matches,
-    ProfanityFilter,
-    Match,
 )
 
 
@@ -145,10 +146,7 @@ class TestProfanityFilter:
 
     def test_filter_chaining(self):
         """Test fluent API method chaining."""
-        filter = (
-            ProfanityFilter.english()
-            .with_censor("keep_start", keep_length=1, censor_char="#")
-        )
+        filter = ProfanityFilter.english().with_censor("keep_start", keep_length=1, censor_char="#")
         result = filter.censor("shit")
         assert result == "s###"
 
@@ -160,25 +158,19 @@ class TestProfanityFilter:
 
     def test_filter_with_censor_keep_start(self):
         """Test filter with keep_start censoring."""
-        filter = ProfanityFilter.english().with_censor(
-            "keep_start", keep_length=2, censor_char="*"
-        )
+        filter = ProfanityFilter.english().with_censor("keep_start", keep_length=2, censor_char="*")
         result = filter.censor("shit")
         assert "s" in result and "*" in result
 
     def test_filter_with_censor_keep_end(self):
         """Test filter with keep_end censoring."""
-        filter = ProfanityFilter.english().with_censor(
-            "keep_end", keep_length=2, censor_char="*"
-        )
+        filter = ProfanityFilter.english().with_censor("keep_end", keep_length=2, censor_char="*")
         result = filter.censor("shit")
         assert "t" in result and "*" in result
 
     def test_filter_with_censor_fixed(self):
         """Test filter with fixed replacement."""
-        filter = ProfanityFilter.english().with_censor(
-            "fixed", replacement="[BAD]"
-        )
+        filter = ProfanityFilter.english().with_censor("fixed", replacement="[BAD]")
         result = filter.censor("shit")
         assert result == "[BAD]"
 
@@ -274,7 +266,7 @@ class TestIntegration:
         assert len(matches) >= 3
         # Get unique positions and verify they're sorted
         if len(matches) >= 2:
-            positions = sorted(set(m.start_index for m in matches))
+            positions = sorted({m.start_index for m in matches})
             assert positions == sorted(positions)
 
     def test_filter_consistency(self):

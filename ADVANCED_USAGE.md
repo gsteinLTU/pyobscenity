@@ -69,12 +69,9 @@ Text transformers normalize variations in text before pattern matching. This all
 from pyobscenity import ProfanityFilter, LowercaseTransformer, SkipNonAlphaTransformer
 
 # Create filter with custom transformers
-filter = (
-    ProfanityFilter.english()
-    .with_transformers(
-        blacklist=[LowercaseTransformer(), SkipNonAlphaTransformer()],
-        whitelist=[LowercaseTransformer()]
-    )
+filter = ProfanityFilter.english().with_transformers(
+    blacklist=[LowercaseTransformer(), SkipNonAlphaTransformer()],
+    whitelist=[LowercaseTransformer()],
 )
 
 # Now matches text with removed spaces/punctuation
@@ -99,20 +96,25 @@ from pyobscenity import Dataset, ProfanityFilter
 # Define your phrases with patterns
 dataset = (
     Dataset()
-    .add_phrase(lambda p: p
-        .set_metadata({"originalWord": "badword", "severity": "high"})
-        .add_pattern("|badword|")  # Word boundary pattern
-        .add_whitelisted_term("badwords")  # Don't censor "badwords" (plural)
-        .add_whitelisted_term("badwording")  # Don't censor gerund
+    .add_phrase(
+        lambda p: (
+            p.set_metadata({"originalWord": "badword", "severity": "high"})
+            .add_pattern("|badword|")  # Word boundary pattern
+            .add_whitelisted_term("badwords")  # Don't censor "badwords" (plural)
+            .add_whitelisted_term("badwording")
+        )  # Don't censor gerund
     )
-    .add_phrase(lambda p: p
-        .set_metadata({"originalWord": "naughty", "severity": "medium"})
-        .add_pattern("|naughty|")
+    .add_phrase(
+        lambda p: p.set_metadata({"originalWord": "naughty", "severity": "medium"}).add_pattern(
+            "|naughty|"
+        )
     )
-    .add_phrase(lambda p: p
-        .set_metadata({"originalWord": "offensive", "severity": "high"})
-        .add_pattern("offensive")  # No word boundaries
-        .add_pattern("|offended|")  # Alternative pattern
+    .add_phrase(
+        lambda p: (
+            p.set_metadata({"originalWord": "offensive", "severity": "high"})
+            .add_pattern("offensive")  # No word boundaries
+            .add_pattern("|offended|")
+        )  # Alternative pattern
     )
 )
 
@@ -150,17 +152,12 @@ Examples:
 ```python
 from pyobscenity import Dataset, ProfanityFilter, LowercaseTransformer, ResolveLeetTransformer
 
-dataset = Dataset().add_phrase(lambda p: p
-    .set_metadata({"originalWord": "customword"})
-    .add_pattern("|customword|")
+dataset = Dataset().add_phrase(
+    lambda p: p.set_metadata({"originalWord": "customword"}).add_pattern("|customword|")
 )
 
-filter = (
-    ProfanityFilter.custom(dataset)
-    .with_transformers(
-        blacklist=[LowercaseTransformer(), ResolveLeetTransformer()],
-        whitelist=[LowercaseTransformer()]
-    )
+filter = ProfanityFilter.custom(dataset).with_transformers(
+    blacklist=[LowercaseTransformer(), ResolveLeetTransformer()], whitelist=[LowercaseTransformer()]
 )
 ```
 
@@ -284,17 +281,11 @@ import timeit
 texts = ["shit", "fuck", "damn"] * 100
 
 # Simple API (creates matcher each time)
-time1 = timeit.timeit(
-    lambda: [censor(t) for t in texts],
-    number=10
-)
+time1 = timeit.timeit(lambda: [censor(t) for t in texts], number=10)
 
 # Reusable filter (reuses matcher)
 filter = ProfanityFilter.english()
-time2 = timeit.timeit(
-    lambda: [filter.censor(t) for t in texts],
-    number=10
-)
+time2 = timeit.timeit(lambda: [filter.censor(t) for t in texts], number=10)
 
 print(f"Simple API: {time1:.3f}s")  # Slower
 print(f"Reusable Filter: {time2:.3f}s")  # Faster
@@ -317,8 +308,10 @@ from pyobscenity import ProfanityFilter
 
 filter = ProfanityFilter.english()
 
+
 def process_text(text):
     return filter.censor(text)  # Safe - reading only
+
 
 # Safe to use in threads
 with ThreadPoolExecutor(max_workers=4) as executor:

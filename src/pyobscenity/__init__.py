@@ -5,28 +5,36 @@ High-level convenience API for common use cases, with full access to lower-level
 components for advanced customization.
 """
 
-from typing import Optional, List
 from dataclasses import dataclass
+
+from pyobscenity.censor import (
+    FixedCensor,
+    FullCensor,
+    GrawlixCensor,
+    KeepEndCensor,
+    KeepStartCensor,
+    RandomCharCensor,
+    TextCensor,
+)
 
 # Low-level imports (for backward compatibility and power users)
 from pyobscenity.dataset import Dataset, PhraseBuilder
-from pyobscenity.matcher import Matcher, RegexMatcher, MatchPayload
-from pyobscenity.censor import TextCensor, FullCensor, KeepStartCensor, KeepEndCensor, FixedCensor, RandomCharCensor, GrawlixCensor
-from pyobscenity.transformers import (
-    Transformer,
-    LowercaseTransformer,
-    CollapseDuplicateTransformer,
-    SkipNonAlphaTransformer,
-    ResolveConfusablesTransformer,
-    ResolveLeetTransformer,
-    RemapCharacterTransformer,
-)
 from pyobscenity.english_preset import (
     english_dataset,
     english_recommended_blacklist_transformers,
     english_recommended_whitelist_transformers,
 )
+from pyobscenity.matcher import Matcher, MatchPayload, RegexMatcher
 from pyobscenity.pattern import PatternParser
+from pyobscenity.transformers import (
+    CollapseDuplicateTransformer,
+    LowercaseTransformer,
+    RemapCharacterTransformer,
+    ResolveConfusablesTransformer,
+    ResolveLeetTransformer,
+    SkipNonAlphaTransformer,
+    Transformer,
+)
 
 __version__ = "0.1.0"
 
@@ -63,8 +71,8 @@ __all__ = [
 # GLOBAL DEFAULTS & PRESETS
 # ============================================================================
 
-_DEFAULT_MATCHER: Optional[RegexMatcher] = None
-_DEFAULT_CENSOR: Optional[TextCensor] = None
+_DEFAULT_MATCHER: RegexMatcher | None = None
+_DEFAULT_CENSOR: TextCensor | None = None
 
 
 def _get_default_matcher() -> RegexMatcher:
@@ -214,7 +222,7 @@ class Match:
     term_id: int
     """Internal term ID."""
 
-    metadata: Optional[dict] = None
+    metadata: dict | None = None
     """Optional metadata about the matched phrase."""
 
     @property
@@ -223,9 +231,7 @@ class Match:
         return self.matched_text
 
 
-def find_matches(
-    text: str, *, language: str = "en", include_metadata: bool = True
-) -> List[Match]:
+def find_matches(text: str, *, language: str = "en", include_metadata: bool = True) -> list[Match]:
     """
     Find all profanity matches in text.
 
@@ -425,8 +431,8 @@ class ProfanityFilter:
 
     def with_transformers(
         self,
-        blacklist: Optional[List[Transformer]] = None,
-        whitelist: Optional[List[Transformer]] = None,
+        blacklist: list[Transformer] | None = None,
+        whitelist: list[Transformer] | None = None,
     ) -> "ProfanityFilter":
         """
         Override the text transformers used for matching.
@@ -482,7 +488,7 @@ class ProfanityFilter:
 
         return self._matcher.has_match(text)
 
-    def find_matches(self, text: str, include_metadata: bool = True) -> List[Match]:
+    def find_matches(self, text: str, include_metadata: bool = True) -> list[Match]:
         """
         Find all profanity matches in text.
 

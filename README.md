@@ -53,23 +53,23 @@ for match in matches:
 from pyobscenity import censor
 
 # Default (full replacement with *)
-censor("This is shit")  
+censor("This is shit")
 # "This is ****"
 
 # Custom character
-censor("shit", censor_char="#")  
+censor("shit", censor_char="#")
 # "####"
 
 # Keep first character as hint
-censor("shit", censor_type="keep_start", keep_length=1)  
+censor("shit", censor_type="keep_start", keep_length=1)
 # "s***"
 
 # Fixed replacement
-censor("shit", censor_type="fixed", replacement="[REDACTED]")  
+censor("shit", censor_type="fixed", replacement="[REDACTED]")
 # "[REDACTED]"
 
 # Grawlix (comic book style)
-censor("shit", censor_type="grawlix")  
+censor("shit", censor_type="grawlix")
 # "@#$%"
 ```
 
@@ -80,7 +80,7 @@ from pyobscenity import check, find_matches
 
 # Simple check
 has_profanity = check("hello world")  # False
-has_profanity = check("hello shit")   # True
+has_profanity = check("hello shit")  # True
 
 # Get match details
 matches = find_matches("fuck this shit")
@@ -96,16 +96,15 @@ from pyobscenity import Dataset, ProfanityFilter
 # Define custom profanity
 dataset = (
     Dataset()
-    .add_phrase(lambda p: p
-        .add_pattern("|badword|")
-        .add_whitelisted_term("badwords")  # Don't censor this
+    .add_phrase(
+        lambda p: p.add_pattern("|badword|").add_whitelisted_term("badwords")  # Don't censor this
     )
     .add_phrase(lambda p: p.add_pattern("|naughty|"))
 )
 
 filter = ProfanityFilter.custom(dataset)
 result = filter.censor("This is a badword")  # Censored
-result = filter.censor("These are badwords") # Not censored
+result = filter.censor("These are badwords")  # Not censored
 ```
 
 ## What Gets Detected?

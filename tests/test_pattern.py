@@ -1,11 +1,19 @@
-from pyobscenity.pattern import PatternParser, BoundaryAssertionNode, LiteralNode, WildcardNode, OptionalNode
+from pyobscenity.pattern import (
+    BoundaryAssertionNode,
+    LiteralNode,
+    OptionalNode,
+    PatternParser,
+    WildcardNode,
+)
+
 
 def test_pattern_parser_simple():
     parser = PatternParser()
     nodes = parser.parse_pattern("abc")
     assert len(nodes.nodes) == 1
     assert all(node.chars is not None for node in nodes.nodes)
-    assert [node.chars for node in nodes.nodes] == [list(map(ord, ['a', 'b', 'c']))]
+    assert [node.chars for node in nodes.nodes] == [list(map(ord, ["a", "b", "c"]))]
+
 
 def test_pattern_parser_boundaries():
     parser = PatternParser()
@@ -15,7 +23,7 @@ def test_pattern_parser_boundaries():
     assert len(nodes1.nodes) == 2
     assert isinstance(nodes1.nodes[0], BoundaryAssertionNode)
     assert isinstance(nodes1.nodes[1], LiteralNode)
-    assert nodes1.nodes[1].chars == list(map(ord, ['a', 'b', 'c']))
+    assert nodes1.nodes[1].chars == list(map(ord, ["a", "b", "c"]))
 
     nodes2 = parser.parse_pattern("abc|")
     assert nodes2.require_word_boundary_at_end
@@ -23,14 +31,14 @@ def test_pattern_parser_boundaries():
     assert len(nodes2.nodes) == 2
     assert isinstance(nodes2.nodes[0], LiteralNode)
     assert isinstance(nodes2.nodes[1], BoundaryAssertionNode)
-    assert nodes2.nodes[0].chars == list(map(ord, ['a', 'b', 'c']))
+    assert nodes2.nodes[0].chars == list(map(ord, ["a", "b", "c"]))
 
     nodes3 = parser.parse_pattern("|abc|")
     assert len(nodes3.nodes) == 3
     assert isinstance(nodes3.nodes[0], BoundaryAssertionNode)
     assert isinstance(nodes3.nodes[1], LiteralNode)
     assert isinstance(nodes3.nodes[2], BoundaryAssertionNode)
-    assert nodes3.nodes[1].chars == list(map(ord, ['a', 'b', 'c']))
+    assert nodes3.nodes[1].chars == list(map(ord, ["a", "b", "c"]))
 
     # Test "bad" patterns with multiple boundaries
     try:
@@ -87,8 +95,8 @@ def test_pattern_parser_wildcards_and_optionals():
     assert isinstance(parsed.nodes[0], OptionalNode)
     assert isinstance(parsed.nodes[1], WildcardNode)
     assert isinstance(parsed.nodes[2], LiteralNode)
-    assert set(parsed.nodes[0].child_node.chars) == set(map(ord, ['a', 'A']))
-    assert list(parsed.nodes[2].chars) == list(map(ord, ['c']))
+    assert set(parsed.nodes[0].child_node.chars) == set(map(ord, ["a", "A"]))
+    assert list(parsed.nodes[2].chars) == list(map(ord, ["c"]))
 
 
 def test_pattern_parser_empty_pattern():
@@ -98,9 +106,10 @@ def test_pattern_parser_empty_pattern():
     assert not parsed.require_word_boundary_at_start
     assert not parsed.require_word_boundary_at_end
 
+
 def test_pattern_parser_as_regex():
     parser = PatternParser()
     pattern = "|a?b c|"
     parsed = parser.parse_pattern(pattern)
     regex = parsed.as_regex()
-    assert regex == r'\b\x61.\x62\x20\x63\b'
+    assert regex == r"\b\x61.\x62\x20\x63\b"
